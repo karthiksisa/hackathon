@@ -1,0 +1,42 @@
+<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm h-full">
+  <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">{{ title() }}</h3>
+  @if(deals(); as dealList) {
+    @if(dealList.length > 0) {
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Opportunity</th>
+              <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Value</th>
+              <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Days in Stage</th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Owner</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            @for(deal of dealList; track deal.opportunityId) {
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ deal.opportunityName }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ deal.accountName }}</p>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-right">{{ deal.value | currency:'INR':'symbol-narrow':'1.0-0' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-red-600 dark:text-red-500 font-semibold text-right">{{ deal.daysInStage }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ deal.ownerName }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="flex flex-col items-center justify-center h-48 text-center">
+         <div class="w-12 h-12 bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+         </div>
+         <p class="mt-4 font-semibold text-gray-700 dark:text-gray-200">No Stalled Deals!</p>
+         <p class="text-sm text-gray-500 dark:text-gray-400">The pipeline is looking healthy.</p>
+      </div>
+    }
+  }
+</div>

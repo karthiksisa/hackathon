@@ -1,0 +1,33 @@
+<div class="space-y-6">
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 dark:border-gray-700">
+      <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+        <button (click)="setTab('users')" [class]="'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ' + (activeTab() === 'users' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500')">
+          User Management
+        </button>
+        <button (click)="setTab('regions')" [class]="'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ' + (activeTab() === 'regions' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500')">
+          Region Management
+        </button>
+        <button (click)="setTab('audit')" [class]="'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ' + (activeTab() === 'audit' ? 'border-blue-500 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500')">
+          Audit Log
+        </button>
+      </nav>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="p-6">
+      @switch (activeTab()) {
+        @case ('users') {
+          <app-user-management></app-user-management>
+        }
+        @case ('regions') {
+          <app-region-management></app-region-management>
+        }
+        @case ('audit') {
+          <app-audit-log></app-audit-log>
+        }
+      }
+    </div>
+  </div>
+</div>

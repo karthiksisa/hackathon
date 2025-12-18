@@ -1,0 +1,146 @@
+<div class="space-y-6">
+  <div class="flex items-center space-x-4">
+    <button (click)="backToBoard.emit()" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+    </button>
+    <h2 class="text-3xl font-bold text-gray-900">
+      {{ isNewOpportunity() ? 'Create New Opportunity' : 'Opportunity Details' }}
+    </h2>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Opportunity Form -->
+    <div class="lg:col-span-2 bg-white shadow rounded-lg p-6 self-start">
+      @if(isClosed()) {
+        <div class="p-4 mb-6 text-sm rounded-lg" [class]="editableOpportunity().stage === 'Won' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'">
+          <span class="font-medium">This opportunity is {{ editableOpportunity().stage?.toLowerCase() }}.</span> Details are now read-only.
+        </div>
+      }
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="opp-name" class="block text-sm font-medium text-gray-700">Opportunity Name</label>
+          <input type="text" id="opp-name" [ngModel]="editableOpportunity().name" (ngModelChange)="updateField('name', $event)" [disabled]="isClosed()" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100">
+        </div>
+        <div>
+          <label for="account" class="block text-sm font-medium text-gray-700">Account</label>
+          <select id="account" [ngModel]="editableOpportunity().accountId" (ngModelChange)="onAccountChange($event)" [disabled]="isClosed()" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md disabled:bg-gray-100">
+            @for(account of visibleAccounts(); track account.id) {
+              <option [value]="account.id">{{ account.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+          <div class="mt-1 relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 sm:text-sm">₹</span>
+              </div>
+              <input type="number" id="amount" [ngModel]="editableOpportunity().amount" (ngModelChange)="updateField('amount', $event)" [disabled]="isClosed()" class="disabled:bg-gray-100 focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md">
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <span class="text-gray-500 sm:text-sm">INR</span>
+              </div>
+          </div>
+        </div>
+        <div>
+          <label for="close-date" class="block text-sm font-medium text-gray-700">Close Date</label>
+          <input type="date" id="close-date" [ngModel]="editableOpportunity().closeDate" (ngModelChange)="updateField('closeDate', $event)" [disabled]="isClosed()" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100">
+        </div>
+        <div>
+          <label for="stage" class="block text-sm font-medium text-gray-700">Stage</label>
+          <select id="stage" [ngModel]="editableOpportunity().stage" (ngModelChange)="updateField('stage', $event)" [disabled]="isClosed()" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md disabled:bg-gray-100">
+            @for(stage of stages; track stage) {
+              <option [value]="stage">{{ stage }}</option>
+            }
+          </select>
+        </div>
+        <div>
+            <label for="owner" class="block text-sm font-medium text-gray-700">Owner</label>
+            @if(canEditOwner()) {
+                <select id="owner" [ngModel]="editableOpportunity().ownerId" (ngModelChange)="updateField('ownerId', $event)" [disabled]="isClosed()" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md disabled:bg-gray-100">
+                    @for(owner of possibleOwners(); track owner.id) {
+                        <option [value]="owner.id">{{ owner.name }}</option>
+                    }
+                </select>
+            } @else {
+                <input type="text" id="owner" [value]="getOwnerName(editableOpportunity().ownerId)" [disabled]="true" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-100">
+            }
+        </div>
+      </div>
+
+      <div class="flex justify-end items-center flex-wrap gap-3 pt-6 border-t border-gray-200 mt-6">
+        @if (!isNewOpportunity()) {
+          <div class="flex-grow">
+            <button (click)="onDelete()" type="button" class="bg-white py-2 px-4 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+              Delete
+            </button>
+          </div>
+        }
+        @if (!isNewOpportunity() && !isClosed()) {
+           <button (click)="onMarkAsLost()" type="button" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Mark as Lost
+          </button>
+           <button (click)="onMarkAsWon()" type="button" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            Mark as Won
+          </button>
+        }
+        @if(!isClosed()) {
+            <button (click)="onSave()" type="button" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              {{ isNewOpportunity() ? 'Create Opportunity' : 'Save Changes' }}
+            </button>
+        }
+      </div>
+    </div>
+    
+    <!-- Side Cards -->
+    @if (!isNewOpportunity()) {
+      <div class="space-y-6">
+        <!-- Activity Timeline -->
+        <div class="bg-white shadow rounded-lg p-6 self-start">
+            <h3 class="text-lg font-medium text-gray-900">Activity Timeline</h3>
+            <ul class="mt-4 space-y-4">
+              @for(task of opportunityTasks(); track task.id) {
+                <li class="flex space-x-3">
+                   <div class="flex-shrink-0">
+                     <div [class]="'h-8 w-8 rounded-full flex items-center justify-center ' + (task.status === 'Completed' ? 'bg-green-100' : 'bg-yellow-100')">
+                       <svg [class]="'h-5 w-5 ' + (task.status === 'Completed' ? 'text-green-600' : 'text-yellow-600')" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                       </svg>
+                     </div>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{task.subject}}</p>
+                    <p class="text-sm text-gray-500">Due: {{task.dueDate}}</p>
+                  </div>
+                </li>
+              } @empty {
+                <li class="text-center text-sm text-gray-500 py-4">No activities for this opportunity.</li>
+              }
+            </ul>
+        </div>
+        <!-- Proposals & SOW -->
+        <div class="bg-white shadow rounded-lg p-6 self-start">
+            <h3 class="text-lg font-medium text-gray-900">Proposals & SOW</h3>
+            <ul class="mt-4 space-y-4">
+              @for(doc of opportunityDocuments(); track doc.id) {
+                <li class="flex space-x-3 items-center">
+                   <div class="flex-shrink-0">
+                      <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                   </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-medium text-gray-900 truncate">{{doc.name}}</p>
+                    <p class="text-sm text-gray-500">{{doc.status}} - {{doc.uploadedDate}}</p>
+                  </div>
+                </li>
+              } @empty {
+                <li class="text-center text-sm text-gray-500 py-4">No documents for this opportunity.</li>
+              }
+            </ul>
+        </div>
+      </div>
+    }
+  </div>
+</div>

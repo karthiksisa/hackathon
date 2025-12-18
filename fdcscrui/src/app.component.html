@@ -1,0 +1,195 @@
+@if(currentUser(); as user) {
+<div class="flex h-screen bg-gray-100 dark:bg-gray-900 font-sans">
+  <!-- Sidebar -->
+  <aside class="w-64 flex-shrink-0 bg-gray-800 text-gray-200 flex flex-col">
+    <div class="h-16 flex items-center justify-center px-4 bg-gray-900 shadow-md">
+      <div class="flex items-center space-x-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <h1 class="text-xl font-bold text-white">Catalyst CRM</h1>
+      </div>
+    </div>
+    <nav class="flex-1 px-2 py-4 space-y-2 overflow-y-auto">
+      <a (click)="setView('dashboard')"
+        [class]="'flex items-center px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors ' + (currentView() === 'dashboard' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-600 hover:text-white')">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
+          <path
+            d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+        </svg>
+        Dashboard
+      </a>
+      <a (click)="setView('leads')"
+        [class]="'flex items-center px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors ' + (currentView() === 'leads' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-600 hover:text-white')">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
+          <path
+            d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+        </svg>
+        Leads
+      </a>
+      <a (click)="setView('accounts')"
+        [class]="'flex items-center px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors ' + (currentView() === 'accounts' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-600 hover:text-white')">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
+          <path
+            d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+        </svg>
+        Accounts
+      </a>
+      <a (click)="setView('opportunities')"
+        [class]="'flex items-center px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors ' + (currentView() === 'opportunities' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-600 hover:text-white')">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"
+            clip-rule="evenodd" />
+        </svg>
+        Opportunities
+      </a>
+      <a (click)="setView('tasks')"
+        [class]="'flex items-center px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors ' + (currentView() === 'tasks' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-600 hover:text-white')">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+          <path fill-rule="evenodd"
+            d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+            clip-rule="evenodd" />
+        </svg>
+        Tasks
+      </a>
+      <a (click)="setView('documents')"
+        [class]="'flex items-center px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors ' + (currentView() === 'documents' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-600 hover:text-white')">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Proposals & SOW
+      </a>
+      @if (user.role === 'Super Admin') {
+      <div class="border-t border-gray-700 my-4"></div>
+      <a (click)="setView('admin')"
+        [class]="'flex items-center px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors ' + (currentView() === 'admin' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-600 hover:text-white')">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M18 8a6 6 0 11-12 0 6 6 0 0112 0zM7 8a1 1 0 11-2 0 1 1 0 012 0zm5 0a1 1 0 11-2 0 1 1 0 012 0zm5 0a1 1 0 11-2 0 1 1 0 012 0z"
+            clip-rule="evenodd" />
+        </svg>
+        Admin
+      </a>
+      }
+    </nav>
+    <!-- Sidebar Footer -->
+    <div class="p-4 bg-gray-900 border-t border-gray-700">
+      <p class="text-xs text-gray-500 text-center leading-tight">
+        Forensic Driven Cyber Security Hackathon
+      </p>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top Nav Bar -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm z-10 dark:border-b dark:border-gray-700">
+      <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center">
+          @switch(currentView()) {
+          @case('dashboard') { <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Sales Dashboard</h1> }
+          @case('leads') { <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Leads Management</h1> }
+          @case('accounts') { <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Accounts Management</h1> }
+          @case('opportunities') { <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Opportunity Pipeline
+          </h1> }
+          @case('tasks') { <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Task Management</h1> }
+          @case('documents') { <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Proposals & SOWs</h1> }
+          @case('admin') { <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Admin Panel</h1> }
+          @case('profile') { <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">My Profile</h1> }
+          }
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <button (click)="userMenuOpen.set(!userMenuOpen())"
+              class="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800">
+              <div
+                class="w-10 h-10 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center font-bold text-gray-600 dark:text-gray-300 ring-2 ring-white dark:ring-gray-800">
+                {{ user.name?.charAt(0) }}
+              </div>
+              <div class="text-left hidden md:block">
+                <div class="font-semibold text-sm text-gray-800 dark:text-gray-200">{{ user.name }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">{{ user.role }}</div>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 dark:text-gray-400"
+                viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd" />
+              </svg>
+            </button>
+
+            @if(userMenuOpen()) {
+            <div
+              class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none">
+              <div class="py-1">
+                <a (click)="setView('profile')"
+                  class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">My
+                  Profile</a>
+
+                <div class="border-t border-gray-100 dark:border-gray-600"></div>
+                <div class="px-4 py-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-700 dark:text-gray-200">Theme</span>
+                    <button (click)="themeService.toggleTheme()"
+                      class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-700"
+                      [class]="themeService.theme() === 'dark' ? 'bg-blue-600' : 'bg-gray-200'">
+                      <span class="sr-only">Use setting</span>
+                      <span
+                        class="pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                        [class]="themeService.theme() === 'dark' ? 'translate-x-5' : 'translate-x-0'">
+                        <span class="absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
+                          [class]="themeService.theme() === 'dark' ? 'opacity-0 ease-out duration-100' : 'opacity-100 ease-in duration-200'">
+                          <svg class="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
+                          </svg>
+                        </span>
+                        <span class="absolute inset-0 flex h-full w-full items-center justify-center transition-opacity"
+                          [class]="themeService.theme() === 'dark' ? 'opacity-100 ease-in duration-200' : 'opacity-0 ease-out duration-100'">
+                          <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                            </path>
+                          </svg>
+                        </span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+
+                <a (click)="logout()"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer">Logout</a>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900">
+      <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        @switch (currentView()) {
+        @case ('dashboard') { <app-dashboard-page></app-dashboard-page> }
+        @case ('leads') { <app-leads-page></app-leads-page> }
+        @case ('accounts') { <app-accounts-page></app-accounts-page> }
+        @case ('opportunities') { <app-opportunities-page></app-opportunities-page> }
+        @case ('tasks') { <app-tasks-page></app-tasks-page> }
+        @case ('documents') { <app-documents-page></app-documents-page> }
+        @case ('admin') { <app-admin-page></app-admin-page> }
+        @case ('profile') { <app-profile-page></app-profile-page> }
+        }
+      </div>
+    </main>
+  </div>
+</div>
+} @else {
+<app-login-page></app-login-page>
+}

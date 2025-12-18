@@ -1,0 +1,20 @@
+# Build artifacts
+bin/
+obj/
+node_modules/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# IDE
+.idea/
+.vscode/
+
+# Uploads
+Uploads/
+
+# Environment
+*.env
+appsettings.Development.json

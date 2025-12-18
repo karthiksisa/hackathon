@@ -1,0 +1,8 @@
+@switch (view()) {
+@case ('list') {
+<app-document-list (viewDocument)="onViewDocument($event)" (addDocument)="onAddDocument()"></app-document-list>
+}
+@case ('upload') {
+<app-document-upload [document]="selectedDocument()" (backToList)="onBackToList()"></app-document-upload>
+}
+}

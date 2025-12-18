@@ -1,0 +1,8 @@
+@switch (view()) {
+  @case ('board') {
+    <app-opportunity-board (viewOpportunity)="onViewOpportunity($event)" (addOpportunity)="onAddOpportunity()"></app-opportunity-board>
+  }
+  @case ('detail') {
+    <app-opportunity-detail [opportunity]="selectedOpportunity()" (backToBoard)="onBackToBoard()"></app-opportunity-detail>
+  }
+}

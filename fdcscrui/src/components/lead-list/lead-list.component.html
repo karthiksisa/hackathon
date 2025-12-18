@@ -1,0 +1,105 @@
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Leads Dashboard</h2>
+    @if (canCreateLead()) {
+    <button (click)="addLead.emit()"
+      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd"
+          d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+          clip-rule="evenodd" />
+      </svg>
+      Create Lead
+    </button>
+    }
+  </div>
+
+  <!-- Stat cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+      <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Leads</h3>
+      <p class="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ stats().totalLeads }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+      <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">New Leads</h3>
+      <p class="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ stats().newLeads }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+      <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Qualified Leads</h3>
+      <p class="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ stats().qualifiedLeads }}</p>
+    </div>
+  </div>
+
+  <!-- Leads Table -->
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Lead Name</th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Company</th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Status</th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Owner</th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Region</th>
+            <th scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Created Date</th>
+            <th scope="col" class="relative px-6 py-3">
+              <span class="sr-only">View</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          @for (lead of leads(); track lead.id) {
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ lead.name }}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ lead.email }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ lead.company }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span
+                [class]="'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + getStatusClass(lead.status)">
+                {{ lead.status }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{
+              lead.ownerName || getOwnerName(lead.ownerId) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ lead.regionName || 'N/A'
+              }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ lead.createdDate }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <button (click)="viewLead.emit(lead)"
+                class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View</button>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="6" class="text-center py-10 px-6 text-gray-500 dark:text-gray-400">
+              <div class="flex flex-col items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2-2H5a2 2 0 01-2-2z" />
+                </svg>
+                <p class="mt-2 text-lg">No leads found.</p>
+                <p class="text-sm">No leads are assigned to you or your region.</p>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

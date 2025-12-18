@@ -1,0 +1,22 @@
+<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm h-full">
+  <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Pipeline by Stage</h3>
+  @if (processedFunnel().stages.length > 0) {
+    <div class="space-y-3">
+      @for (stage of processedFunnel().stages; track stage.stageKey) {
+        <div class="group">
+          <div class="flex justify-between items-center text-sm mb-1">
+            <span class="font-medium text-gray-700 dark:text-gray-300">{{ stage.stageLabel }}</span>
+            <span class="text-gray-500 dark:text-gray-400">{{ stage.amount | currency:'INR':'symbol-narrow':'1.0-0' }} ({{ stage.count }})</span>
+          </div>
+          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+            <div class="bg-blue-500 h-4 rounded-full" [style.width.%]="stage.percentage"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="flex items-center justify-center h-48">
+      <p class="text-gray-500 dark:text-gray-400">No funnel data available.</p>
+    </div>
+  }
+</div>

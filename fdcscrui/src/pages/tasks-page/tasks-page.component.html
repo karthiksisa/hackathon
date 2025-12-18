@@ -1,0 +1,8 @@
+@switch (view()) {
+  @case ('list') {
+    <app-task-list (viewTask)="onViewTask($event)" (addTask)="onAddTask()"></app-task-list>
+  }
+  @case ('detail') {
+    <app-task-detail [task]="selectedTask()" (backToList)="onBackToList()"></app-task-detail>
+  }
+}

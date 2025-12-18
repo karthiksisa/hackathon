@@ -1,0 +1,151 @@
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div class="flex items-center space-x-4">
+      <button (click)="backToList.emit()"
+        class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </button>
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        {{ isNewLead() ? 'Create New Lead' : 'Lead Details' }}
+      </h2>
+    </div>
+    @if (!isNewLead() && editableLead().status === 'Qualified' && canConvert()) {
+    <button (click)="startConvert.emit(lead()!)"
+      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path
+          d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 10a1 1 0 01-1-1V4a1 1 0 012 0v5a1 1 0 01-1 1zm12 0a1 1 0 01-1-1V4a1 1 0 012 0v5a1 1 0 01-1 1zM10 18a1 1 0 011-1v-1a1 1 0 11-2 0v1a1 1 0 011 1zM16 10a1 1 0 01-1 1h-5a1 1 0 110-2h5a1 1 0 011 1z" />
+      </svg>
+      Convert Lead
+    </button>
+    }
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Lead Form -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 shadow rounded-lg p-6 space-y-6 self-start">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="lead-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Lead Name</label>
+          <input type="text" id="lead-name" [disabled]="isConverted()" [ngModel]="editableLead().name"
+            (ngModelChange)="updateField('name', $event)"
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-800">
+        </div>
+        <div>
+          <label for="company" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Company</label>
+          <input type="text" id="company" [disabled]="isConverted()" [ngModel]="editableLead().company"
+            (ngModelChange)="updateField('company', $event)"
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-800">
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+          <input type="email" id="email" [disabled]="isConverted()" [ngModel]="editableLead().email"
+            (ngModelChange)="updateField('email', $event)"
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-800">
+        </div>
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
+          <input type="tel" id="phone" [disabled]="isConverted()" [ngModel]="editableLead().phone"
+            (ngModelChange)="updateField('phone', $event)"
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-800">
+        </div>
+        <div>
+          <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+          <select id="status" [disabled]="isConverted()" [ngModel]="editableLead().status"
+            (ngModelChange)="updateField('status', $event)"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-800">
+            @for(status of statuses; track status) {
+            <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label for="region" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Region</label>
+          <select id="region" [disabled]="isConverted()" [ngModel]="editableLead().regionId"
+            (ngModelChange)="updateField('regionId', $event)"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-800">
+            <option [ngValue]="undefined">Select Region</option>
+            @for(region of regions(); track region.id) {
+            <option [value]="region.id">{{ region.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label for="owner" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Owner</label>
+          @if(canEditOwner()) {
+          <select id="owner" [ngModel]="editableLead().ownerId" (ngModelChange)="updateField('ownerId', $event)"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 dark:text-gray-200">
+            @for(owner of possibleOwners(); track owner.id) {
+            <option [value]="owner.id">{{ owner.name }}</option>
+            }
+          </select>
+          } @else {
+          <input type="text" id="owner" [ngModel]="currentUser()?.name" [disabled]="true"
+            class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+          }
+        </div>
+      </div>
+      <div>
+        <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
+        <textarea id="notes" rows="4" [disabled]="isConverted()" [ngModel]="editableLead().notes"
+          (ngModelChange)="updateField('notes', $event)"
+          class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-800"></textarea>
+      </div>
+
+      <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        @if (!isNewLead() && canDelete() && !isConverted()) {
+        <button (click)="onDelete()" type="button"
+          class="bg-white dark:bg-gray-700 py-2 px-4 border border-red-300 dark:border-red-500 rounded-md shadow-sm text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+          Delete
+        </button>
+        }
+        @if (!isConverted()) {
+        <button (click)="onSave()" type="button"
+          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          {{ isNewLead() ? 'Create Lead' : 'Save Changes' }}
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- Side Cards -->
+    <div class="space-y-6">
+      <!-- Activity Timeline Card -->
+      @if (!isNewLead()) {
+      <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Activity Timeline</h3>
+        <ul class="mt-4 space-y-4">
+          @for(task of leadTasks(); track task.id) {
+          <li class="flex space-x-3">
+            <div class="flex-shrink-0">
+              <div
+                class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center ring-8 ring-white dark:ring-gray-800">
+                <svg class="h-5 w-5 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    [attr.d]="getTaskTypeIcon(task.type)" />
+                </svg>
+              </div>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{task.subject}}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Due: {{task.dueDate}}</p>
+            </div>
+            <div class="flex-shrink-0 self-center">
+              <span
+                [class]="'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + (task.status === 'Completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300')">
+                {{ task.status }}
+              </span>
+            </div>
+          </li>
+          } @empty {
+          <li class="text-center text-sm text-gray-500 dark:text-gray-400 py-4">No activities recorded.</li>
+          }
+        </ul>
+      </div>
+      }
+    </div>
+  </div>
+</div>

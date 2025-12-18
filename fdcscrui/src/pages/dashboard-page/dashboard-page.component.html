@@ -1,0 +1,84 @@
+@if (stats(); as data) {
+  <div class="space-y-8">
+    <!-- Top Bar -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+      <div>
+        <div class="flex items-center space-x-2">
+            <span class="px-3 py-1 text-sm font-semibold text-white rounded-full"
+                  [ngClass]="{
+                    'bg-red-600': data.scope.role === 'Super Admin',
+                    'bg-blue-600': data.scope.role === 'Regional Lead',
+                    'bg-green-600': data.scope.role === 'Sales Rep'
+                  }">
+              {{ data.scope.role }} View
+            </span>
+            <span class="text-gray-600 dark:text-gray-400 font-medium">
+              @switch(data.scope.role) {
+                @case('Super Admin') { | All Regions }
+                @case('Regional Lead') { | Region: {{ data.scope.regionName }} }
+                @case('Sales Rep') { | My Deals }
+              }
+            </span>
+        </div>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Displaying data for period: {{ data.filtersApplied.dateFrom }} to {{ data.filtersApplied.dateTo }}
+        </p>
+      </div>
+       <div class="flex items-center space-x-2">
+          <select class="text-sm rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 dark:text-gray-200">
+              <option>MTD</option>
+              <option selected>QTD</option>
+              <option>YTD</option>
+              <option>Custom</option>
+          </select>
+          <select class="text-sm rounded-md border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 dark:text-gray-200">
+              <option>Open</option>
+              <option>Won</option>
+              <option selected>All</option>
+          </select>
+       </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <app-kpi-cards [kpis]="data.kpis"></app-kpi-cards>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <!-- Funnel -->
+      <div class="lg:col-span-2">
+        <app-funnel-chart [funnel]="data.funnel"></app-funnel-chart>
+      </div>
+
+      <!-- Forecast Chart -->
+      <div class="lg:col-span-3">
+        <app-forecast-by-rep-chart [forecast]="data.forecastByRep" [scope]="data.scope"></app-forecast-by-rep-chart>
+      </div>
+    </div>
+    
+     <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <!-- Forecast Summary Table -->
+        <app-forecast-summary-table [pivotData]="data.forecastPivot"></app-forecast-summary-table>
+        
+        <!-- Stalled Deals -->
+        <app-stalled-deals-table [deals]="data.stalledDeals" [scope]="data.scope"></app-stalled-deals-table>
+     </div>
+
+  </div>
+} @else {
+  <!-- Loading Skeleton -->
+  <div class="animate-pulse space-y-8">
+      <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded-md w-1/3"></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div class="h-24 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+          <div class="h-24 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+          <div class="h-24 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+          <div class="h-24 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+          <div class="h-24 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+          <div class="h-24 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+      </div>
+       <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div class="lg:col-span-2 h-96 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+          <div class="lg:col-span-3 h-96 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+       </div>
+        <div class="h-64 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+  </div>
+}

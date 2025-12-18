@@ -1,0 +1,514 @@
+<div class="space-y-6">
+  <div class="flex items-center space-x-4">
+    <button (click)="backToList.emit()"
+      class="p-2 rounded-full text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+    </button>
+    <h2 class="text-3xl font-bold text-gray-900">
+      {{ isNewAccount() ? (currentUser()?.role === 'Sales Rep' ? 'Request New Account' : 'Create New Account') :
+      editableAccount().name }}
+    </h2>
+  </div>
+
+  <div class="bg-white shadow rounded-lg">
+    <!-- Tabs -->
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+        <button (click)="setTab('overview')"
+          [class]="'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ' + (activeTab() === 'overview' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300')">
+          Overview
+        </button>
+        <button (click)="setTab('contacts')" [disabled]="isNewAccount()"
+          [class]="'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ' + (activeTab() === 'contacts' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 disabled:text-gray-300 disabled:cursor-not-allowed')">
+          Contacts
+        </button>
+        <button (click)="setTab('opportunities')" [disabled]="isNewAccount()"
+          [class]="'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ' + (activeTab() === 'opportunities' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 disabled:text-gray-300 disabled:cursor-not-allowed')">
+          Opportunities
+        </button>
+        <button (click)="setTab('activities')" [disabled]="isNewAccount()"
+          [class]="'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ' + (activeTab() === 'activities' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 disabled:text-gray-300 disabled:cursor-not-allowed')">
+          Activities
+        </button>
+        <button (click)="setTab('documents')" [disabled]="isNewAccount()"
+          [class]="'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ' + (activeTab() === 'documents' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 disabled:text-gray-300 disabled:cursor-not-allowed')">
+          Proposals / SOW
+        </button>
+      </nav>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="p-6">
+      @switch (activeTab()) {
+      @case ('overview') {
+      <div class="space-y-6">
+        @if(editableAccount().status === 'Pending Approval') {
+        <div class="p-4 mb-4 text-sm text-orange-800 rounded-lg bg-orange-50" role="alert">
+          <span class="font-medium">Pending Approval!</span> This account is awaiting approval from a Super Admin or
+          Regional Lead.
+        </div>
+        }
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="account-name" class="block text-sm font-medium text-gray-700">Account Name</label>
+            <input type="text" id="account-name" [(ngModel)]="editableAccount().name"
+              [disabled]="!canEditDetails() && !isNewAccount()"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100">
+          </div>
+          <div>
+            <label for="industry" class="block text-sm font-medium text-gray-700">Industry</label>
+            <input type="text" id="industry" [(ngModel)]="editableAccount().industry"
+              [disabled]="!canEditDetails() && !isNewAccount()"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100">
+          </div>
+          <div>
+            <label for="region" class="block text-sm font-medium text-gray-700">Region</label>
+            <select id="region" [(ngModel)]="editableAccount().regionId"
+              [disabled]="!canEditDetails() || currentUser()?.role === 'Regional Lead' && !isNewAccount()"
+              class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md disabled:bg-gray-100">
+              @for(region of allRegions(); track region.id) {
+              <option [value]="region.id">{{ region.name }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="sales-rep" class="block text-sm font-medium text-gray-700">Assigned Sales Rep</label>
+            <select id="sales-rep" [(ngModel)]="editableAccount().salesRepId" [disabled]="!canEditDetails()"
+              class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md disabled:bg-gray-100">
+              <option [ngValue]="undefined">Unassigned</option>
+              @for(rep of salesReps(); track rep.id) {
+              <option [value]="rep.id">{{ rep.name }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+            <select id="status" [(ngModel)]="editableAccount().status" [disabled]="isStatusLocked()"
+              class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md disabled:bg-gray-100 disabled:cursor-not-allowed">
+              @for(status of statuses; track status) {
+              <option [value]="status">{{ status }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 mt-6">
+          @if(canApproveOrReject()) {
+          <button (click)="onReject()" type="button"
+            class="bg-white py-2 px-4 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            Reject
+          </button>
+          <button (click)="onApprove()" type="button"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            Approve
+          </button>
+          } @else {
+          @if (!isNewAccount() && canEditDetails()) {
+          <button (click)="onDelete()" type="button"
+            class="bg-white py-2 px-4 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            Delete
+          </button>
+          }
+          <button (click)="onSave()" type="button"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            {{ isNewAccount() ? (currentUser()?.role === 'Sales Rep' ? 'Submit Request' : 'Save') : 'Save Changes' }}
+          </button>
+          }
+        </div>
+      </div>
+      }
+      @case ('contacts') {
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">Contacts</h3>
+          @if(!isAddingContact()) {
+          <button (click)="startAddContact()" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+            + Add Contact
+          </button>
+          }
+        </div>
+        @if(isAddingContact()) {
+        <div class="bg-gray-50 p-4 rounded-lg space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input type="text" [(ngModel)]="newContact().name" placeholder="Full Name"
+              class="md:col-span-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <input type="text" [(ngModel)]="newContact().title" placeholder="Title"
+              class="md:col-span-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <input type="email" [(ngModel)]="newContact().email" placeholder="Email"
+              class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+            <input type="tel" [(ngModel)]="newContact().phone" placeholder="Phone"
+              class="block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+          </div>
+          <div class="flex justify-end space-x-2">
+            <button (click)="cancelAddContact()"
+              class="bg-white text-gray-700 px-3 py-1 rounded-md text-sm font-medium border border-gray-300 hover:bg-gray-50">Cancel</button>
+            <button (click)="saveNewContact()"
+              class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-700">Save</button>
+          </div>
+        </div>
+        }
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Title</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Email</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Phone</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for(contact of accountContacts(); track contact.id) {
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{contact.name}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{contact.title}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{contact.email}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{contact.phone}}</td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="4" class="text-center py-10 px-6 text-gray-500">No contacts found for this account.</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+      @case ('opportunities') {
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">Opportunities</h3>
+          <button (click)="startAddOpportunity()" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+            + Add Opportunity
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Opportunity Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Stage</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Owner</th>
+                <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for(opp of accountOpportunities(); track opp.id) {
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{opp.name}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span
+                    [class]="'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + getStageClass(opp.stage)">
+                    {{ opp.stage }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{opp.amount |
+                  currency:'INR':'symbol-narrow':'1.0-0'}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{opp.ownerName ||
+                  getOwnerName(opp.ownerId)}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button (click)="startEditOpportunity(opp)" class="text-blue-600 hover:text-blue-900">Edit</button>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="5" class="text-center py-10 px-6 text-gray-500">No opportunities found for this account.
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+      @case ('activities') {
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">Activities</h3>
+          <button (click)="startAddTask()" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+            + Add Task
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Subject</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Due Date</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status</th>
+                <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for(task of accountTasks(); track task.id) {
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{task.subject}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{task.dueDate}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span
+                    [class]="'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + getTaskStatusClass(task.status)">
+                    {{ task.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button (click)="startEditTask(task)" class="text-blue-600 hover:text-blue-900">Edit</button>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="4" class="text-center py-10 px-6 text-gray-500">No activities found for this account.</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+      @case ('documents') {
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">Proposals / SOW</h3>
+          <button (click)="startAddDocument()" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+            + Add Document
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Document Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  File Size</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Uploaded Date</th>
+                <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for(doc of accountDocuments(); track doc.id) {
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{doc.name}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatFileSize(doc.fileSize) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{doc.status}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{doc.uploadedDate}}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                  <button (click)="onDownload(doc)" class="text-green-600 hover:text-green-900">Download</button>
+                  <button (click)="startEditDocument(doc)" class="text-blue-600 hover:text-blue-900">Edit</button>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="5" class="text-center py-10 px-6 text-gray-500">No documents found for this account.</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      }
+      }
+    </div>
+  </div>
+
+  <!-- Opportunity Edit Panel -->
+  @if (editingOpportunity(); as opp) {
+  <div class="fixed inset-0 overflow-hidden z-20" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="cancelEditOpportunity()">
+      </div>
+      <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+        <div class="pointer-events-auto w-screen max-w-md">
+          <form (ngSubmit)="saveOpportunity()" class="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
+            <div class="flex-1 overflow-y-auto py-6 px-4 sm:px-6">
+              <div class="flex items-start justify-between">
+                <h2 class="text-lg font-medium text-gray-900">{{ opp.id ? 'Edit Opportunity' : 'Create Opportunity' }}
+                </h2>
+                <button (click)="cancelEditOpportunity()" type="button"
+                  class="ml-3 flex h-7 items-center rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">&times;</button>
+              </div>
+              <div class="mt-8 space-y-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Opportunity Name</label>
+                  <input type="text" [(ngModel)]="opp.name" name="opp-name"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Amount</label>
+                  <input type="number" [(ngModel)]="opp.amount" name="opp-amount"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Close Date</label>
+                  <input type="date" [(ngModel)]="opp.closeDate" name="opp-closeDate"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Stage</label>
+                  <select [(ngModel)]="opp.stage" name="opp-stage"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    @for(stage of opportunityStages; track stage) { <option [value]="stage">{{ stage }}</option> }
+                  </select>
+                </div>
+                @if(canEditDetails()) {
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Owner</label>
+                  <select [(ngModel)]="opp.ownerId" name="opp-owner"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    @for(owner of possibleOppOwners(); track owner.id) { <option [value]="owner.id">{{ owner.name }}
+                    </option> }
+                  </select>
+                </div>
+                }
+              </div>
+            </div>
+            <div class="flex flex-shrink-0 justify-end px-4 py-4"><button type="button"
+                (click)="cancelEditOpportunity()"
+                class="rounded-md border bg-white py-2 px-4 text-sm">Cancel</button><button type="submit"
+                class="ml-4 inline-flex justify-center rounded-md border bg-blue-600 py-2 px-4 text-sm text-white">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Task Edit Panel -->
+  @if(editingTask(); as task) {
+  <div class="fixed inset-0 overflow-hidden z-20" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="cancelEditTask()"></div>
+      <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+        <div class="pointer-events-auto w-screen max-w-md">
+          <form (ngSubmit)="saveTask()" class="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
+            <div class="flex-1 overflow-y-auto py-6 px-4 sm:px-6">
+              <div class="flex items-start justify-between">
+                <h2 class="text-lg font-medium text-gray-900">{{ task.id ? 'Edit Task' : 'Create Task' }}</h2>
+                <button (click)="cancelEditTask()" type="button"
+                  class="ml-3 flex h-7 items-center rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">&times;</button>
+              </div>
+              <div class="mt-8 space-y-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Subject</label>
+                  <input type="text" [(ngModel)]="task.subject" name="task-subject"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Due Date</label>
+                  <input type="date" [(ngModel)]="task.dueDate" name="task-dueDate"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Type</label>
+                  <select [(ngModel)]="task.type" name="task-type"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    @for(type of taskTypes; track type) { <option [value]="type">{{ type }}</option> }
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-shrink-0 justify-end px-4 py-4"><button type="button" (click)="cancelEditTask()"
+                class="rounded-md border bg-white py-2 px-4 text-sm">Cancel</button><button type="submit"
+                class="ml-4 inline-flex justify-center rounded-md border bg-blue-600 py-2 px-4 text-sm text-white">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Document Edit Panel -->
+  @if(editingDocument(); as doc) {
+  <div class="fixed inset-0 overflow-hidden z-20" role="dialog" aria-modal="true">
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="cancelEditDocument()"></div>
+      <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+        <div class="pointer-events-auto w-screen max-w-md">
+          <form (ngSubmit)="saveDocument()" class="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
+            <div class="flex-1 overflow-y-auto py-6 px-4 sm:px-6">
+              <div class="flex items-start justify-between">
+                <h2 class="text-lg font-medium text-gray-900">{{ doc.id ? 'Edit Document' : 'Add Document' }}</h2>
+                <button (click)="cancelEditDocument()" type="button"
+                  class="ml-3 flex h-7 items-center rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">&times;</button>
+              </div>
+              <div class="mt-8 space-y-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">File Upload</label>
+                  <div
+                    class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                    <div class="space-y-1 text-center">
+                      <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48"
+                        aria-hidden="true">
+                        <path
+                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8"
+                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </svg>
+                      <div class="flex text-sm text-gray-600">
+                        <label for="file-upload"
+                          class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                          <span>Upload a file</span>
+                          <input id="file-upload" name="file-upload" type="file" class="sr-only"
+                            (change)="onFileSelected($event)">
+                        </label>
+                        <p class="pl-1">or drag and drop</p>
+                      </div>
+                      @if (doc.name) {
+                      <p class="text-xs text-gray-500">{{ doc.name }} ({{ formatFileSize(doc.fileSize) }})</p>
+                      } @else {
+                      <p class="text-xs text-gray-500">PDF, DOCX up to 10MB</p>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Document Name</label>
+                  <input type="text" [(ngModel)]="doc.name" name="doc-name"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                  <p class="mt-1 text-xs text-gray-500">Auto-filled from filename, can be edited.</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Type</label>
+                  <select [(ngModel)]="doc.type" name="doc-type"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    @for(type of docTypes; track type) { <option [value]="type">{{ type }}</option> }
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Status</label>
+                  <select [(ngModel)]="doc.status" name="doc-status"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    @for(status of docStatuses; track status) { <option [value]="status">{{ status }}</option> }
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-shrink-0 justify-end px-4 py-4"><button type="button" (click)="cancelEditDocument()"
+                class="rounded-md border bg-white py-2 px-4 text-sm">Cancel</button><button type="submit"
+                class="ml-4 inline-flex justify-center rounded-md border bg-blue-600 py-2 px-4 text-sm text-white">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+</div>

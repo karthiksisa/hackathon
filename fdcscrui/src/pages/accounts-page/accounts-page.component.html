@@ -1,0 +1,8 @@
+@switch (view()) {
+  @case ('list') {
+    <app-account-list (viewAccount)="onViewAccount($event)" (addAccount)="onAddAccount()"></app-account-list>
+  }
+  @case ('detail') {
+    <app-account-detail [account]="selectedAccount()" (backToList)="onBackToList()"></app-account-detail>
+  }
+}

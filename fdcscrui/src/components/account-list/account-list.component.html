@@ -1,0 +1,114 @@
+<div class="space-y-6">
+  @if (showApprovalQueue() && pendingAccounts().length > 0) {
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow border-l-4 border-orange-400">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">New Account Requests</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">The following accounts have been requested by Sales Reps and require your approval.</p>
+      <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+        @for(account of pendingAccounts(); track account.id) {
+          <li (click)="viewAccount.emit(account)" class="py-3 flex justify-between items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 -mx-2 rounded-md">
+            <div>
+              <p class="text-sm font-medium text-blue-600 dark:text-blue-400">{{ account.name }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Requested for {{ account.region }} region</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300">
+                Pending Approval
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div class="flex justify-between items-center">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Accounts Dashboard</h2>
+    @if (canCreateAccount()) {
+      <button (click)="addAccount.emit()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        Create Account
+      </button>
+    } @else if(canRequestAccount()) {
+       <button (click)="addAccount.emit()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        Request New Account
+      </button>
+    }
+  </div>
+
+  <!-- Stat cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+      <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Accounts</h3>
+      <p class="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ stats().total }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+      <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Active Accounts</h3>
+      <p class="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ stats().active }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-lg shadow">
+      <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Prospects</h3>
+      <p class="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ stats().prospect }}</p>
+    </div>
+  </div>
+
+  <!-- Accounts Table -->
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Account Name</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Industry</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Owner</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Created Date</th>
+            <th scope="col" class="relative px-6 py-3">
+              <span class="sr-only">View</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          @for (account of accounts(); track account.id) {
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ account.name }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ account.region }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ account.industry }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span [class]="'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + getStatusClass(account.status)">
+                  {{ account.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ account.owner }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ account.createdDate }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button (click)="viewAccount.emit(account)" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">View</button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+                <td colspan="6" class="text-center py-10 px-6 text-gray-500 dark:text-gray-400">
+                    <div class="flex flex-col items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <p class="mt-2 text-lg">No accounts found.</p>
+                        <p class="text-sm">Your assigned accounts will appear here.</p>
+                    </div>
+                </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+@switch (view()) {
+  @case ('list') {
+    <app-lead-list (viewLead)="onViewLead($event)" (addLead)="onAddLead()"></app-lead-list>
+  }
+  @case ('detail') {
+    <app-lead-detail [lead]="selectedLead()" (backToList)="onBackToList()" (startConvert)="onStartConvert($event)"></app-lead-detail>
+  }
+  @case ('convert') {
+    <app-lead-convert [lead]="selectedLead()!" (backToList)="onBackToList()"></app-lead-convert>
+  }
+}
